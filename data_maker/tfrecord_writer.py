@@ -21,8 +21,8 @@ class affNISTReader():
             quit()
 
     def writeTFRecord(self, target_dir):
-        tf_train_writer = tf.python.io.TFRecordWriter(os.path.join(target_dir, "train.tfrecord"))
-        tf_valid_writer = tf.python.io.TFRecordWriter(os.path.join(target_dir, "valid.tfrecord"))
+        tf_train_writer = tf.python_io.TFRecordWriter(os.path.join(target_dir, "train.tfrecord"))
+        tf_valid_writer = tf.python_io.TFRecordWriter(os.path.join(target_dir, "valid.tfrecord"))
 
         cur_writer = tf_train_writer
 
@@ -37,12 +37,12 @@ class affNISTReader():
             img_num = imgs.shape[1]
             for j in range(img_num):
                 cur_label = labels[0, j]
-                cur_img = cv2.resize(np.reshape(imgs[:, j], [40, 40]), [32, 32])
+                cur_img = cv2.resize(np.reshape(imgs[:, j], [40, 40]), (32, 32))
 
                 example = tf.train.Example(features = tf.train.Features(
                     feature={
                         "image": tf.train.Feature(bytes_list = tf.train.BytesList(value = [cur_img.tobytes()])),
-                        "label:" tf.train.Feature(float_list = tf.train.FloatList(value = [cur_label]))
+                        "label": tf.train.Feature(float_list = tf.train.FloatList(value = [cur_label]))
                         }
                     ))
                 cur_writer.write(example.SerializeToString())
