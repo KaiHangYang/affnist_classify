@@ -40,8 +40,6 @@ class affNISTReader():
 
         cur_writer = tf_train_writer
 
-        self.dataset_num = 1
-
         for i in range(self.dataset_num):
 
             if i >= 24:
@@ -87,5 +85,5 @@ class affNISTReader():
 
 
 if __name__ == "__main__":
-    reader = affNISTReader("/Users/kaihang/Downloads/training_and_validation_batches", "/Users/kaihang/Downloads/centered", 40)
-    reader.writeTFRecord("/Users/kaihang/Downloads/")
+    reader = affNISTReader("/home/kaihang/DataSet_2/affNIST/training_and_validation_batches", "/home/kaihang/DataSet_2/affNIST/training_and_validation_batcher_centered", 40)
+    reader.writeTFRecord("/home/kaihang/DataSet/affnist_tfrecord")

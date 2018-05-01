@@ -87,11 +87,11 @@ tf.app.flags.DEFINE_string('saved_model_name',
         docstring='Saved model name')
 
 def main(argv):
-    batch_img_train, batch_img_centered_train = tfr_reader.read_batch(train_data_files,
+    batch_img_train, batch_img_centered_train, batch_labels_train = tfr_reader.read_batch(train_data_files,
             FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "train")
 
-    # batch_img_valid, batch_img_centered_valid, batch_labels_valid = tfr_reader.read_batch(valid_data_files,
-            # FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "valid")
+    batch_img_valid, batch_img_centered_valid, batch_labels_valid = tfr_reader.read_batch(valid_data_files,
+            FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "valid")
 
     input_image = tf.placeholder(dtype=tf.float32,
             shape=(None, FLAGS.input_img_size, FLAGS.input_img_size, 1),
@@ -125,26 +125,26 @@ def main(argv):
                 filename_suffix=FLAGS.log_file_name)
 
         # create the weight saver
-        # saver = tf.train.Saver(max_to_keep=10)
-        # init = tf.global_variables_initializer()
-        # sess.run(init)
+        saver = tf.train.Saver(max_to_keep=10)
+        init = tf.global_variables_initializer()
+        sess.run(init)
 
         # reload the model
-        # if FLAGS.restore_trained_model:
-            # if os.path.exists(FLAGS.prev_trained_model+".index"):
-                # print("#######################Restored all weights ###########################")
-                # saver.restore(sess, FLAGS.prev_trained_model)
-            # else:
-                # print("The prev model is not existing!")
-                # quit()
+        if FLAGS.restore_trained_model:
+            if os.path.exists(FLAGS.prev_trained_model+".index"):
+                print("#######################Restored all weights ###########################")
+                saver.restore(sess, FLAGS.prev_trained_model)
+            else:
+                print("The prev model is not existing!")
+                quit()
 
-        # # reset the global step
-        # if FLAGS.reset_global_step:
-            # global_step = tf.contrib.framework.get_or_create_global_step()
-            # sess.run(global_step.assign(0))
+        # reset the global step
+        if FLAGS.reset_global_step:
+            global_step = tf.contrib.framework.get_or_create_global_step()
+            sess.run(global_step.assign(0))
 
         while True:
-            # global_step = sess.run(model.global_step)
+            global_step = sess.run(model.global_step)
 
             if valid_count == FLAGS.valid_iter:
                 is_valid = True
@@ -154,61 +154,54 @@ def main(argv):
                 valid_count += 1
 
             # Then the train process
-            # if is_valid:
-                # batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_valid, batch_img_centered_valid, batch_labels_valid])
-            # else:
-                # batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_train, batch_img_centered_train, batch_labels_train])
+            if is_valid:
+                batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_valid, batch_img_centered_valid, batch_labels_valid])
+            else:
+                batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_train, batch_img_centered_train, batch_labels_train])
 
-            batch_img_np, batch_img_centered_np = sess.run([batch_img_train, batch_img_centered_train])
-
-            cv2.imshow("img", batch_img_np[0])
-            cv2.imshow("img_centered", batch_img_centered_np[0])
-            # print(batch_labels_np)
-            cv2.waitKey()
 
             batch_img_np = batch_img_np.astype(np.float32)
             batch_img_centered_np = batch_img_centered_np.astype(np.float32)
-
             # preprocess train data
-            # for img_num in range(batch_img_np.shape[0]):
-                # batch_img_np[img_num], batch_img_centered_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num], batch_img_centered_np[img_num])
+            for img_num in range(batch_img_np.shape[0]):
+                batch_img_np[img_num], batch_img_centered_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num].copy(), batch_img_centered_np[img_num].copy())
 
-            # if is_valid:
-                # loss_np,\
-                # summary, current_lr = sess.run([
-                    # model.loss,
-                    # model.merged_summary,
-                    # model.lr,
-                    # ], feed_dict={
-                        # input_image:batch_img_np,
-                        # input_label:batch_labels_np
-                        # })
-                # valid_writer.add_summary(summary, global_step)
-            # else:
-                # loss_np,\
-                # _, summary, current_lr = sess.run([
-                    # model.loss,
-                    # model.train_op,
-                    # model.merged_summary,
-                    # model.lr,
-                    # ], feed_dict={
-                        # input_image:batch_img_np,
-                        # input_label:batch_labels_np,
-                        # })
-                # train_writer.add_summary(summary, global_step)
+            if is_valid:
+                loss_np,\
+                summary, current_lr = sess.run([
+                    model.loss,
+                    model.merged_summary,
+                    model.lr,
+                    ], feed_dict={
+                        input_image:batch_img_np,
+                        input_label:batch_labels_np
+                        })
+                valid_writer.add_summary(summary, global_step)
+            else:
+                loss_np,\
+                _, summary, current_lr = sess.run([
+                    model.loss,
+                    model.train_op,
+                    model.merged_summary,
+                    model.lr,
+                    ], feed_dict={
+                        input_image:batch_img_np,
+                        input_label:batch_labels_np,
+                        })
+                train_writer.add_summary(summary, global_step)
 
-            # print("##========={:} Iter {:>6d} ============##".format("Valid" if is_valid else "Train", global_step))
-            # print("Current learning rate: {:.8f}".format(current_lr))
+            print("##========={:} Iter {:>6d} ============##".format("Valid" if is_valid else "Train", global_step))
+            print("Current learning rate: {:.8f}".format(current_lr))
 
-            # print('Loss: {:>.3f}\n\n\n'.format(loss_np))
+            print('Loss: {:>.3f}\n\n\n'.format(loss_np))
 
-            # if global_step % 5000 == 0 and not is_valid:
-                # save_path_str = os.path.join(m_pd.model_dir, FLAGS.saved_model_name)
-                # saver.save(sess=sess, save_path=save_path_str, global_step=global_step)
-                # print('\nModel checkpoint saved...\n')
+            if global_step % 5000 == 0 and not is_valid:
+                save_path_str = os.path.join(m_pd.model_dir, FLAGS.saved_model_name)
+                saver.save(sess=sess, save_path=save_path_str, global_step=global_step)
+                print('\nModel checkpoint saved...\n')
 
-            # if global_step == FLAGS.train_iter:
-                # break
+            if global_step == FLAGS.train_iter:
+                break
         coord.request_stop()
         coord.join(threads)
 

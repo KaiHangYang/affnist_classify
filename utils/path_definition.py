@@ -2,16 +2,13 @@
 use_depthwise = False
 
 ######################### Train Data Path ########################
-train_data_dir = "/Users/kaihang/Downloads/dataset/train/"
-valid_data_dir = "/Users/kaihang/Downloads/dataset/valid/"
+train_data_dir = "/home/kaihang/DataSet/affnist_tfrecord/train/"
+valid_data_dir = "/home/kaihang/DataSet/affnist_tfrecord/valid/"
 
 ######################### Train parameter ########################
-trained_model_path = "/home/kaihang/Projects/mocap_pose_tf/models/models"+("_dw" if use_depthwise else "")+"/train"
-# log_dir = "/home/kaihang/Projects/mocap_pose_tf/logs/logs"+("_dw" if use_depthwise else "")+"/"
-# model_dir = "/home/kaihang/Projects/mocap_pose_tf/models/models"+("_dw" if use_depthwise else "")+"/"
-
-log_dir = "/Users/kaihang/Downloads/dataset/logs"+("_dw" if use_depthwise else "")+"/"
-model_dir = "/Users/kaihang/Downloads/dataset/models"+("_dw" if use_depthwise else "")+"/"
+trained_model_path = "/home/kaihang/Projects/affnist_classify/models/models"+("_dw" if use_depthwise else "")+"/train"
+log_dir = "/home/kaihang/Projects/affnist_classify/logs/logs"+("_dw" if use_depthwise else "")+"/"
+model_dir = "/home/kaihang/Projects/affnist_classify/models/models"+("_dw" if use_depthwise else "")+"/"
 
 restore_pretrained_model = False
 reset_global_step = False
