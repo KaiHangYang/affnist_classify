@@ -87,7 +87,7 @@ tf.app.flags.DEFINE_string('saved_model_name',
         docstring='Saved model name')
 
 def main(argv):
-    batch_img_train, batch_img_centered_train, batch_labels_train = tfr_reader.read_batch(train_data_files,
+    batch_img_train, batch_img_centered_train = tfr_reader.read_batch(train_data_files,
             FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "train")
 
     # batch_img_valid, batch_img_centered_valid, batch_labels_valid = tfr_reader.read_batch(valid_data_files,
@@ -159,11 +159,11 @@ def main(argv):
             # else:
                 # batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_train, batch_img_centered_train, batch_labels_train])
 
-            batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_train, batch_img_centered_train, batch_labels_train])
+            batch_img_np, batch_img_centered_np = sess.run([batch_img_train, batch_img_centered_train])
 
             cv2.imshow("img", batch_img_np[0])
             cv2.imshow("img_centered", batch_img_centered_np[0])
-            print(batch_labels_np)
+            # print(batch_labels_np)
             cv2.waitKey()
 
             batch_img_np = batch_img_np.astype(np.float32)
