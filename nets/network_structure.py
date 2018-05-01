@@ -19,5 +19,6 @@ class M_Model():
         self.merged_summary = None
 
     def build_model(self, input_image):
+        pass
 
 

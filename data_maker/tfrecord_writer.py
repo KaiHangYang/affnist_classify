@@ -40,6 +40,8 @@ class affNISTReader():
 
         cur_writer = tf_train_writer
 
+        self.dataset_num = 1
+
         for i in range(self.dataset_num):
 
             if i >= 24:
@@ -62,7 +64,7 @@ class affNISTReader():
                     feature={
                         "image": tf.train.Feature(bytes_list = tf.train.BytesList(value = [cur_img.tobytes()])),
                         "centered_image": tf.train.Feature(bytes_list = tf.train.BytesList(value=[centered_img.tobytes()])),
-                        "label": tf.train.Feature(float_list = tf.train.FloatList(value = [cur_label]))
+                        "label": tf.train.Feature(float_list = tf.train.FloatList(value = np.array([cur_label], dtype=np.float32)))
                         }
                     ))
                 cur_writer.write(example.SerializeToString())
@@ -85,5 +87,5 @@ class affNISTReader():
 
 
 if __name__ == "__main__":
-    reader = affNISTReader("/Users/kaihang/Downloads/centered/", "", 40)
-    # reader.writeTFRecord("/Users/kaihang/Downloads/")
+    reader = affNISTReader("/Users/kaihang/Downloads/training_and_validation_batches", "/Users/kaihang/Downloads/centered", 40)
+    reader.writeTFRecord("/Users/kaihang/Downloads/")
