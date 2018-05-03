@@ -107,7 +107,7 @@ def main(argv):
 
     model = network_structure.M_Model(FLAGS.input_img_size, FLAGS.batch_size)
     model.build_model(input_image)
-    model.build_loss(input_image_centered, input_labels, FLAGS.lr, FLAGS.lr_decay_rate, FLAGS.lr_decay_step)
+    model.build_loss(input_labels, FLAGS.lr, FLAGS.lr_decay_rate, FLAGS.lr_decay_step)
 
     valid_count = 0
     is_valid = False
@@ -139,12 +139,13 @@ def main(argv):
                 quit()
 
         # reset the global step
-        if FLAGS.reset_global_step:
-            global_step = tf.contrib.framework.get_or_create_global_step()
-            sess.run(global_step.assign(0))
-
+        # if FLAGS.reset_global_step:
+            # global_step = tf.contrib.framework.get_or_create_global_step()
+            # sess.run(global_step.assign(0))
+        global_step = 0
         while True:
-            global_step = sess.run(model.global_step)
+
+            # global_step = sess.run(model.global_step)
 
             if valid_count == FLAGS.valid_iter:
                 is_valid = True
@@ -169,19 +170,15 @@ def main(argv):
             # preprocess train data
             for img_num in range(batch_img_np.shape[0]):
                 batch_img_np[img_num], batch_img_centered_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num].copy(), batch_img_centered_np[img_num].copy())
-
                 batch_one_hot_labels_np[img_num][batch_labels_np[img_num]] = 1.0
 
             if is_valid:
-                # affine_loss_np, \
-                label_loss_np,\
+                label_loss_np, \
                 accuracy_np, \
-                summary, current_lr = sess.run([
-                    # model.affine_loss,
+                summary = sess.run([
                     model.label_loss,
                     model.accuracy,
                     model.merged_summary,
-                    model.lr,
                     ], feed_dict={
                         input_image:batch_img_np,
                         input_image_centered:batch_img_centered_np,
@@ -189,16 +186,14 @@ def main(argv):
                         })
                 valid_writer.add_summary(summary, global_step)
             else:
-                # affine_loss_np,\
                 label_loss_np, \
                 accuracy_np, \
-                _, summary, current_lr = sess.run([
-                    # model.affine_loss,
+                _, summary = sess.run([
                     model.label_loss,
                     model.accuracy,
                     model.train_op,
                     model.merged_summary,
-                    model.lr,
+                    # model.lr,
                     ], feed_dict={
                         input_image:batch_img_np,
                         input_image_centered:batch_img_centered_np,
@@ -206,12 +201,12 @@ def main(argv):
                         })
                 train_writer.add_summary(summary, global_step)
 
-            print("##========={:} Iter {:>6d} ============##".format("Valid" if is_valid else "Train", global_step))
-            print("Current learning rate: {:.8f}".format(current_lr))
 
-            print('Label Loss: {:>.3f}\n\n\n'.format(label_loss_np))
-            # print('Affine Loss: {:>.3f}\n\n\n'.format(affine_loss_np))
-            print('Accuracy: {:>.3f}\n\n\n'.format(accuracy_np))
+            print("##========={:} Iter {:>6d} ============##".format("Valid" if is_valid else "Train", global_step))
+            # print("Current learning rate: {:.8f}".format(current_lr))
+
+            print('Label Loss: {:>.3f}\n'.format(label_loss_np))
+            print('Accuracy: {:>.3f}\n\n'.format(accuracy_np))
 
             if global_step % 5000 == 0 and not is_valid:
                 save_path_str = os.path.join(m_pd.model_dir, FLAGS.saved_model_name)
@@ -220,6 +215,9 @@ def main(argv):
 
             if global_step == FLAGS.train_iter:
                 break
+
+            global_step += 1
+
         coord.request_stop()
         coord.join(threads)
 
