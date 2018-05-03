@@ -16,7 +16,7 @@ reset_global_step = False
 input_img_size = 32
 
 # Currently the two size must be the same, cause the implementation of loss builder
-batch_size = 1
+batch_size = 8
 
 learning_rate = 0.0002
 learning_decay_rate = 0.333
