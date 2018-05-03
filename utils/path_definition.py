@@ -18,7 +18,7 @@ input_img_size = 32
 # Currently the two size must be the same, cause the implementation of loss builder
 batch_size = 8
 
-learning_rate = 0.0002
+learning_rate = 0.02
 learning_decay_rate = 0.333
 learning_decay_step = 136106
 train_iterations = 600000

@@ -29,61 +29,62 @@ class M_Model():
         #           another is classification
 
         # train the affine process
-        affine_conv1 = tf.layers.conv2d(inputs=input_image,
-                                 filters=64,
-                                 kernel_size=[5, 5],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=tf.nn.relu,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_conv1")
+        # affine_conv1 = tf.layers.conv2d(inputs=input_image,
+                                 # filters=64,
+                                 # kernel_size=[5, 5],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=tf.nn.relu,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_conv1")
 
-        affine_conv2 = tf.layers.conv2d(inputs=affine_conv1,
-                                 filters=64,
-                                 kernel_size=[5, 5],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=tf.nn.relu,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_conv2")
+        # affine_conv2 = tf.layers.conv2d(inputs=affine_conv1,
+                                 # filters=64,
+                                 # kernel_size=[5, 5],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=tf.nn.relu,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_conv2")
 
-        affine_conv3 = tf.layers.conv2d(inputs=affine_conv2,
-                                 filters=128,
-                                 kernel_size=[3, 3],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=tf.nn.relu,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_conv3")
+        # affine_conv3 = tf.layers.conv2d(inputs=affine_conv2,
+                                 # filters=128,
+                                 # kernel_size=[3, 3],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=tf.nn.relu,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_conv3")
 
-        affine_conv4 = tf.layers.conv2d(inputs=affine_conv3,
-                                 filters=128,
-                                 kernel_size=[3, 3],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=tf.nn.relu,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_conv4")
+        # affine_conv4 = tf.layers.conv2d(inputs=affine_conv3,
+                                 # filters=128,
+                                 # kernel_size=[3, 3],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=tf.nn.relu,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_conv4")
 
-        affine_conv5 = tf.layers.conv2d(inputs=affine_conv4,
-                                 filters=64,
-                                 kernel_size=[3, 3],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=tf.nn.relu,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_conv5")
+        # affine_conv5 = tf.layers.conv2d(inputs=affine_conv4,
+                                 # filters=64,
+                                 # kernel_size=[3, 3],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=tf.nn.relu,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_conv5")
 
-        self.affine_result = tf.layers.conv2d(inputs=affine_conv5,
-                                 filters=1,
-                                 kernel_size=[1, 1],
-                                 strides=[1, 1],
-                                 padding="same",
-                                 activation=None,
-                                 kernel_initializer=tf.contrib.layers.xavier_initializer(),
-                                 name="affine_result")
+        # self.affine_result = tf.layers.conv2d(inputs=affine_conv5,
+                                 # filters=1,
+                                 # kernel_size=[1, 1],
+                                 # strides=[1, 1],
+                                 # padding="same",
+                                 # activation=None,
+                                 # kernel_initializer=tf.contrib.layers.xavier_initializer(),
+                                 # name="affine_result")
 
-        result_conv1 = tf.layers.conv2d(inputs=self.affine_result,
+        # result_conv1 = tf.layers.conv2d(inputs=self.affine_result,
+        result_conv1 = tf.layers.conv2d(inputs=input_image,
                                  filters=64,
                                  kernel_size=[5, 5],
                                  strides=[1, 1],
@@ -144,11 +145,11 @@ class M_Model():
 
         # reduce_mean divide the total loss with batch_size
         self.label_loss = tf.reduce_mean(-tf.reduce_sum(self.gt_labels * tf.log(self.classify_result), reduction_indices=[1]))
-        self.affine_loss = tf.nn.l2_loss(gt_imgs_centered - self.affine_result, name="affine_l2_loss") / self.batch_size
+        # self.affine_loss = tf.nn.l2_loss(gt_imgs_centered - self.affine_result, name="affine_l2_loss") / self.batch_size
 
         self.accuracy = tf.reduce_mean(tf.cast(tf.argmax(self.gt_labels, 1) == tf.argmax(self.classify_result, 1), tf.float32))
 
-        tf.summary.scalar("affine loss", self.affine_loss)
+        # tf.summary.scalar("affine loss", self.affine_loss)
         tf.summary.scalar("label loss", self.label_loss)
         tf.summary.scalar("accuracy", self.accuracy)
 
@@ -160,7 +161,7 @@ class M_Model():
 
         tf.summary.scalar("learn rate", self.lr)
 
-        self.train_op = tf.contrib.layers.optimize_loss(loss=self.label_loss + self.affine_loss,
+        self.train_op = tf.contrib.layers.optimize_loss(loss=self.label_loss,
                                                         global_step=self.global_step,
                                                         learning_rate=self.lr,
                                                         optimizer="Adam")

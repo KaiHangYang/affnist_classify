@@ -162,16 +162,22 @@ def main(argv):
 
             batch_img_np = batch_img_np.astype(np.float32)
             batch_img_centered_np = batch_img_centered_np.astype(np.float32)
+
+            batch_labels_np = batch_labels_np.astype(np.int32)
+            batch_one_hot_labels_np = np.zeros([batch_labels_np.shape[0], 10], np.float32)
+
             # preprocess train data
             for img_num in range(batch_img_np.shape[0]):
                 batch_img_np[img_num], batch_img_centered_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num].copy(), batch_img_centered_np[img_num].copy())
 
+                batch_one_hot_labels_np[img_num][batch_labels_np[img_num]] = 1.0
+
             if is_valid:
-                affine_loss_np, \
+                # affine_loss_np, \
                 label_loss_np,\
                 accuracy_np, \
                 summary, current_lr = sess.run([
-                    model.affine_loss,
+                    # model.affine_loss,
                     model.label_loss,
                     model.accuracy,
                     model.merged_summary,
@@ -179,15 +185,15 @@ def main(argv):
                     ], feed_dict={
                         input_image:batch_img_np,
                         input_image_centered:batch_img_centered_np,
-                        input_labels:batch_labels_np
+                        input_labels:batch_one_hot_labels_np
                         })
                 valid_writer.add_summary(summary, global_step)
             else:
-                affine_loss_np,\
+                # affine_loss_np,\
                 label_loss_np, \
                 accuracy_np, \
                 _, summary, current_lr = sess.run([
-                    model.affine_loss,
+                    # model.affine_loss,
                     model.label_loss,
                     model.accuracy,
                     model.train_op,
@@ -196,7 +202,7 @@ def main(argv):
                     ], feed_dict={
                         input_image:batch_img_np,
                         input_image_centered:batch_img_centered_np,
-                        input_label:batch_labels_np,
+                        input_labels:batch_one_hot_labels_np,
                         })
                 train_writer.add_summary(summary, global_step)
 
@@ -204,7 +210,7 @@ def main(argv):
             print("Current learning rate: {:.8f}".format(current_lr))
 
             print('Label Loss: {:>.3f}\n\n\n'.format(label_loss_np))
-            print('Affine Loss: {:>.3f}\n\n\n'.format(affine_loss_np))
+            # print('Affine Loss: {:>.3f}\n\n\n'.format(affine_loss_np))
             print('Accuracy: {:>.3f}\n\n\n'.format(accuracy_np))
 
             if global_step % 5000 == 0 and not is_valid:
