@@ -7,7 +7,7 @@ valid_data_dir = "/home/kaihang/DataSet/affnist_tfrecord/valid/"
 test_data_dir = "/home/kaihang/DataSet/affnist_tfrecord/test/"
 
 ######################### Train parameter ########################
-trained_model_path = "/home/kaihang/Projects/affnist_classify/models/models"+("_dw" if use_depthwise else "")+"/trained_model-600000"
+trained_model_path = "/home/kaihang/Projects/affnist_classify/models/models"+("_dw" if use_depthwise else "")+"/trained_model-550000"
 log_dir = "/home/kaihang/Projects/affnist_classify/logs/logs"+("_dw" if use_depthwise else "")+"/"
 valid_log_dir = "/home/kaihang/Projects/affnist_classify/logs/valid_logs"+("_dw" if use_depthwise else "")+"/"
 
