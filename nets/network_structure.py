@@ -83,7 +83,6 @@ class M_Model():
         self.accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.argmax(self.gt_labels, 1), tf.argmax(self.classify_result, 1)), tf.float32))
         self.accurate_num = tf.reduce_sum(tf.cast(tf.equal(tf.argmax(self.gt_labels, 1), tf.argmax(self.classify_result, 1)), tf.float32))
 
-        # tf.summary.scalar("affine loss", self.affine_loss)
         tf.summary.scalar("label loss", self.label_loss)
         tf.summary.scalar("accuracy", self.accuracy)
 

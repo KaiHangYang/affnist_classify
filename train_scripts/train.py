@@ -87,19 +87,15 @@ tf.app.flags.DEFINE_string('saved_model_name',
         docstring='Saved model name')
 
 def main(argv):
-    batch_img_train, batch_img_centered_train, batch_labels_train = tfr_reader.read_batch(train_data_files,
+    batch_img_train, batch_labels_train = tfr_reader.read_batch(train_data_files,
             FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "train")
 
-    batch_img_valid, batch_img_centered_valid, batch_labels_valid = tfr_reader.read_batch(valid_data_files,
+    batch_img_valid, batch_labels_valid = tfr_reader.read_batch(valid_data_files,
             FLAGS.input_img_size, batch_size = FLAGS.batch_size, is_shuffle = True, reader_name = "valid")
 
     input_image = tf.placeholder(dtype=tf.float32,
             shape=(None, FLAGS.input_img_size, FLAGS.input_img_size, 1),
             name='input_image')
-
-    input_image_centered = tf.placeholder(dtype=tf.float32,
-            shape=(None, FLAGS.input_img_size, FLAGS.input_img_size, 1),
-            name="input_image_centered")
 
     input_labels = tf.placeholder(dtype=tf.float32,
             shape=(None, 10),
@@ -156,20 +152,19 @@ def main(argv):
 
             # Then the train process
             if is_valid:
-                batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_valid, batch_img_centered_valid, batch_labels_valid])
+                batch_img_np, batch_labels_np = sess.run([batch_img_valid, batch_labels_valid])
             else:
-                batch_img_np, batch_img_centered_np, batch_labels_np = sess.run([batch_img_train, batch_img_centered_train, batch_labels_train])
+                batch_img_np, batch_labels_np = sess.run([batch_img_train, batch_labels_train])
 
 
             batch_img_np = batch_img_np.astype(np.float32)
-            batch_img_centered_np = batch_img_centered_np.astype(np.float32)
 
             batch_labels_np = batch_labels_np.astype(np.int32)
             batch_one_hot_labels_np = np.zeros([batch_labels_np.shape[0], 10], np.float32)
 
             # preprocess train data
             for img_num in range(batch_img_np.shape[0]):
-                batch_img_np[img_num], batch_img_centered_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num].copy(), batch_img_centered_np[img_num].copy())
+                batch_img_np[img_num] = m_preprocessing.preprocess(batch_img_np[img_num].copy())
                 batch_one_hot_labels_np[img_num][batch_labels_np[img_num]] = 1.0
 
             if is_valid:
@@ -181,7 +176,6 @@ def main(argv):
                     model.merged_summary,
                     ], feed_dict={
                         input_image:batch_img_np,
-                        input_image_centered:batch_img_centered_np,
                         input_labels:batch_one_hot_labels_np
                         })
                 valid_writer.add_summary(summary, global_step)
@@ -196,7 +190,6 @@ def main(argv):
                     # model.lr,
                     ], feed_dict={
                         input_image:batch_img_np,
-                        input_image_centered:batch_img_centered_np,
                         input_labels:batch_one_hot_labels_np,
                         })
                 train_writer.add_summary(summary, global_step)
